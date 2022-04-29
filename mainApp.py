@@ -3,7 +3,7 @@ import telebot
 
 from class_library import User
 from telebot import types
-token = '5043105684:AAEHWAzVs-nlWYtgS5HDA7Um6G3z8vUvv1o'
+token = ''
 
 bot = telebot.TeleBot(token)
 
