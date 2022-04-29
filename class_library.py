@@ -1,18 +1,26 @@
-import telebot
-import class_library
-from telebot import types
-token = ''
-
-bot = telebot.TeleBot(token)
 
 class User:
     def __init__(self):
-        self.choose = 'Flase'
-        self.state = 'Flase'
-        self.region = 'False'
-        self.roadToThePlace = 'False'
-        self.nameOfTheDeceased = 'False'
-        self.birthDay = 'Fasle'
-        self.photo = 'False'
-        self.canHelp = 'Flse'
+        self.region = None # название региона, который укажет пользователь
+        self.roadToThePlace = None #дорого то места захоронения
+        self.nameOfTheDeceased = None # имя умершого
+        self.birthDay = None # дата рождения умершого
+        self.photoGrave = None # фотография моглиы
+        self.doHelp = False # окажешь ли ты помощь
+        self.needHelp = False # нужна ли тебе помощь
+        self.wayToHelp = None # способ помочь
+
+    # метод класса, который обновляет все поля до значений по умолчанию
+    def update(self):
+        self.region = None
+        self.roadToThePlace = None
+        self.nameOfTheDeceased = None
+        self.birthDay = None
+        self.photoGrave = None
+        self.doHelp = False
+        self.needHelp = False
+        self.wayToHelp = None
+
+
+
 
