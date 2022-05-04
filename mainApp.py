@@ -4,7 +4,7 @@ import telebot
 from class_library import User
 from telebot import types
 token = ''
-
+channel_id = '-1001320202352'
 bot = telebot.TeleBot(token)
 
 
@@ -49,13 +49,14 @@ def handle_start(message):
 #Обработчик выбора, который был сделан в handle_start. Функция принимает либо текстовые сообщеие либо фото
 @bot.message_handler(content_types=['text', 'photo'])
 def main(message):
+   print(message.text)
    if message.text == 'Попросить помощи':#Если пользователь выбрал 'Попросить помощи, то поле needHelp объекта user становиться True.
         user.needHelp = True
         chooseRegionForNeedHelp(message)# Вызывется функция с выбором региона
 
    if message.text == 'Помочь': #Если пользователь выбрал 'Помочь', то поле doHelp объекта user становиться True
-       user.doHelp = True
-       chooseRegionForDoHelp(message)# Вызывется функция с выбором региона
+        user.doHelp = True
+        chooseRegionForDoHelp(message)# Вызывется функция с выбором региона
 
 
 
@@ -170,7 +171,7 @@ def CheckNeedToBack_BirthDay(message):
 
 #функция, которая 1. добавляет в поле photoGrave класса User фото могилы. 2. вызывает функцию публикации сообщения
 def addGravePhoto(message):
-    user.photoGrave = message.text
+    user.photoGrave = message.photo[-1].file_id
     addToTheChat(message)
 
 
@@ -267,10 +268,16 @@ def CheckNeedToBack_WaysToHelp(message):
 #===========================================================================================
 #функция публикации сообщения в общий чат
 def addToTheChat(message):
-    bot.send_message(message.chat.id, ' Ваше сообщение опубликовано в чате Таком-то, мы можете поискать людей, которым требуется помощь в')
-    print(user.__dict__)
+    if user.doHelp == True:
+        mes = "Могу помочь\n" + 'Регион: ' + user.region + '\n' + 'Я могу помочь: ' + user.wayToHelp + '\n' + 'Предложил помощь: ' + str(message.from_user.first_name) + '\n' + '\n' + 'Опубикованно через: @BabkaTestBot'
+        bot.send_message(channel_id, mes)
+        bot.send_message(message.chat.id, ' Ваше сообщение опубликовано чате https://t.me/test_chanal_1. Вы можете поискать людей, которым требуется помощь',  disable_web_page_preview=True, parse_mode="Markdown")
+
+    if user.needHelp == True:
+        mes = 'Нужна помощь\n' + 'Регион: ' + user.region + '\n' + '#Как добраться: ' + user.roadToThePlace + '\n' + 'Имя умершого: ' + user.nameOfTheDeceased + '\n' + 'Дата рождения: ' + user.birthDay + '\n' + '\n' + 'Опубликовал: ' + str(message.from_user.first_name) + '\n' + '\n' + 'Опубикованно через: @BabkaTestBot'
+        bot.send_photo(channel_id, user.photoGrave, mes)
+        bot.send_message(message.chat.id,' Ваше сообщение опубликовано чате https://t.me/test_chanal_1. Вы можете поискать людей, которым требуется помощь', disable_web_page_preview=True, parse_mode="Markdown")
     user.update()# обнавляются все поля класса user до значений по умолчанию
-    print(user.__dict__)
 
 
 
@@ -301,22 +308,7 @@ def addToTheChat(message):
 #
 # @bot.message_handler(content_types=['text', 'photo'])
 # def main(callback):
-#     if callback.data == 'Do Help':
-#         chooseRegionForDoHelp(callback.message)
-#     if callback.data == 'Need Help':
-#         bot.send_message(callback.message.chat.id, 'vbcbcvbcb')
 
 
-
-
-
-
-
-
-
-bot.infinity_polling()
-
-
-
-
-
+if __name__ == '__main__':
+    bot.polling()
