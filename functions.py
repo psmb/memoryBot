@@ -89,8 +89,6 @@
 # thirdStep(data, inputWord)
 
 
-
-
 import datetime
 import threading
 
@@ -161,7 +159,7 @@ def set_text(message, times):
     users[message.chat.id] = (cur_date, message.text)
     bot.send_message(message.chat.id,
                      'Спасибо! Через заданное время вам'
-                      ' придёт уведомление.')
+                     ' придёт уведомление.')
 
 
 def check_date():
@@ -180,11 +178,11 @@ def check_date():
 
 def get_keyboard():
     keyboard = telebot.types.InlineKeyboardMarkup()
-    button = telebot.types.InlineKeyboardButton('Установить таймер', callback_data='set timer')
+    button = telebot.types.InlineKeyboardButton(
+        'Установить таймер', callback_data='set timer')
     keyboard.add(button)
     return keyboard
 
 
 if __name__ == '__main__':
     bot.polling()
-
