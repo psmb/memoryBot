@@ -1,0 +1,17 @@
+version: "3.4"
+services:
+  web:
+    restart: always
+    image: ghcr.io/psmb/memoryBot:main
+    hostname: 'memoryBot'
+    networks:
+      - main
+    environment:
+      - TOKEN
+      - CHANNEL_ID
+    ports:
+      - '80'
+networks:
+  main:
+    external:
+      name: main
