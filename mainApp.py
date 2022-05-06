@@ -109,7 +109,7 @@ def birthDay(message):
             message.text = None
             nameOfTheDeceased(message)
         else:
-            if message.text != None:
+            if message.text != None and message.text != 'Пропустить':
                 user.birthDay = message.text
             gravePhoto(message)
     bot.register_next_step_handler(mesg, handler)
@@ -146,15 +146,13 @@ def whatNeedsToBeDone(message):
             message.text = None
             whatNeedsToBeDone(message)
         else:
+            user.whatNeedsToBeDone = message.text
             coverExpenses(message)
     bot.register_next_step_handler(mesg, handler)
 
 
 # 8)------------------
 def coverExpenses(message):
-    if message.text != None:
-        user.coverExpenses = message.text
-
     Markup = types.ReplyKeyboardMarkup(row_width=2)
     Markup.add(types.KeyboardButton('Да'), types.KeyboardButton('Нет'))
     mesg = bot.send_message(
@@ -166,6 +164,8 @@ def coverExpenses(message):
             message.text = None
             coverExpenses(message)
         else:
+            if message.text == 'Да':
+                user.coverExpenses = True
             postToChannel(message)
     bot.register_next_step_handler(mesg, handler)
 
@@ -252,29 +252,43 @@ def waysToHelp(message):
 # функция публикации сообщения в общий чат
 def postToChannel(message):
     Markup = types.ReplyKeyboardMarkup(row_width=True)
-    Restart = types.KeyboardButton('Начать сначала')
-    Markup.add(Restart)
+    Markup.add(types.KeyboardButton('Начать сначала'))
     if user.doHelp == True:
-        mes = "Могу помочь\n" + 'Регион: #' + user.region + '\n' + 'Я могу помочь: ' + user.wayToHelp + '\n' + \
-            'Предложил помощь: ' + \
-            str(message.from_user.first_name) + '\n' + \
-            '\n' + 'Опубикованно через: @pomyani_menya_bot'
+        mes = f"""
+*Могу помочь*
+🌍 Регион: \#{user.region}
+🎯 Я могу помочь: {user.wayToHelp}
+📞 Предложил помощь: @{str(message.from_user.username)}
+
+Опубикованно через: @pomyani\_menya\_bot
+"""
+
         bot.send_message(channel_id, mes)
         bot.send_message(
-            message.chat.id, 'Ваше сообщение опубликовано чате @pomyani_menya. Вы можете поискать людей, которым требуется помощь', reply_markup=Markup)
+            message.chat.id, '✅ Ваше сообщение опубликовано чате @pomyani_menya. Вы можете поискать людей, которым требуется помощь', reply_markup=Markup)
 
     if user.needHelp == True:
-        mes = 'Нужна помощь\n' + 'Регион: #' + user.region + '\n' + 'Как добраться: ' + user.roadToThePlace + '\n' + 'Имя умершого: ' + user.nameOfTheDeceased + '\n' + \
-            ('Что нужно сделать: ' + user.whatNeedsToBeDone + '\n' + '\n') if user.whatNeedsToBeDone else "" + \
-            'Дата рождения: ' + user.birthDay + '\n' + '\n' + \
-            'Опубликовал: ' + str(message.from_user.first_name) + '\n' + \
-            '\n' + 'Опубикованно через: @pomyani_menya_bot'
+        mes = f"""
+*Нужна помощь*
+🌍 Регион: \#{user.region}
+🚕 Как добраться: {user.roadToThePlace}
+👤 Имя умершого: {user.nameOfTheDeceased}
+📅 Дата рождения умершего: {user.birthDay}
+🎯 Что нужно сделать: {user.whatNeedsToBeDone}
+{'💰 Я готов покрыть расходы' if user.coverExpenses else ''}
+📞 Опубликовал: @{str(message.from_user.username)}
+
+📮 Опубикованно через: @pomyani\_menya\_bot
+"""
+
         if user.photoGrave:
-            bot.send_photo(channel_id, user.photoGrave, mes)
+            bot.send_photo(channel_id, user.photoGrave,
+                           mes, parse_mode="MarkdownV2")
         else:
-            bot.send_message(channel_id, mes)
+            bot.send_message(channel_id, mes, parse_mode="MarkdownV2")
+
         mesg = bot.send_message(
-            message.chat.id, 'Ваша просьба была опубликована в канале @pomyani_menya. Вы можете сами поискать людей, которые готовы помогать в вашем регионе', reply_markup=Markup)
+            message.chat.id, '✅ Ваша просьба была опубликована в канале @pomyani_menya. Вы можете сами поискать людей, которые готовы помогать в вашем регионе', reply_markup=Markup)
 
         def handler(message):
             if message.text == 'Начать сначала':
