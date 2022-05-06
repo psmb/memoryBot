@@ -295,8 +295,8 @@ def addToTheChat(message):
             str(message.from_user.first_name) + '\n' + \
             '\n' + 'Опубикованно через: @pomyani_menya_bot'
         bot.send_message(channel_id, mes)
-        bot.send_message(message.chat.id, ' Ваше сообщение опубликовано чате https://t.me/pomyani_menya. Вы можете поискать людей, которым требуется помощь',
-                         disable_web_page_preview=True, parse_mode="Markdown")
+        bot.send_message(
+            message.chat.id, 'Ваше сообщение опубликовано чате @pomyani_menya. Вы можете поискать людей, которым требуется помощь')
 
     if user.needHelp == True:
         mes = 'Нужна помощь\n' + 'Регион: #' + user.region + '\n' + 'Как добраться: ' + user.roadToThePlace + '\n' + 'Имя умершого: ' + user.nameOfTheDeceased + '\n' + \
@@ -304,8 +304,9 @@ def addToTheChat(message):
             str(message.from_user.first_name) + '\n' + \
             '\n' + 'Опубикованно через: @pomyani_menya_bot'
         bot.send_photo(channel_id, user.photoGrave, mes)
-        bot.send_message(message.chat.id, ' Ваше сообщение опубликовано чате https://t.me/pomyani_menya. Вы можете поискать людей, которым требуется помощь',
-                         disable_web_page_preview=True, parse_mode="Markdown")
+        bot.send_message(
+            message.chat.id, 'Ваше сообщение опубликовано чате @pomyani_menya. Вы можете поискать людей, которым требуется помощь')
+
     user.update()  # обнавляются все поля класса user до значений по умолчанию
 
 
