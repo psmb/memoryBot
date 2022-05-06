@@ -9,6 +9,7 @@ pytelegrambotapi = "*"
 
 [dev-packages]
 autopep8 = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.9"

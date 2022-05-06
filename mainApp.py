@@ -1,9 +1,12 @@
-import telebot
-import os
-
-
-from class_library import User
 from telebot import types
+from class_library import User
+import os
+import telebot
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 token = os.environ['TOKEN']
 channel_id = os.environ['CHANNEL_ID']
 bot = telebot.TeleBot(token)
