@@ -195,15 +195,13 @@ def chooseRegionForDoHelp(message):
 
 # 2)-------------------------
 def waysToHelp(message):
-    print(message.text)
-
-    Markup = types.ReplyKeyboardMarkup(row_width=True)
-    Markup.add(types.KeyboardButton('Принести цветы'),
-               types.KeyboardButton('Убраться'),
-               types.KeyboardButton('Помолиться'),
-               types.KeyboardButton('Подключить по видеосвязи'),
-               types.KeyboardButton('Другое'),
-               types.KeyboardButton('Назад'))
+    Markup = types.ReplyKeyboardMarkup(row_width=2)
+    Markup.add(types.KeyboardButton('🌺 Принести цветы'),
+               types.KeyboardButton('🧹 Убраться'),
+               types.KeyboardButton('🙏🏻 Помолиться'),
+               types.KeyboardButton('🎥 Подключить по видеосвязи'),
+               types.KeyboardButton('✍🏻 Другое'),
+               types.KeyboardButton('🔙 Назад'))
     mesg = bot.send_message(
         message.chat.id, 'Как вы можете помочь?', reply_markup=Markup)
 
@@ -213,30 +211,23 @@ def waysToHelp(message):
             message.text = None
             chooseRegionForDoHelp(message)
         else:
-            selectionOptions = ['Найти могилу', 'Принести цветы', 'Убраться', 'Помолиться',
-                                'Подключить по видеосвязи', 'Другое']
-            # если пользователь указал вариант, которого нету, то его перенаправит обратно к выбору вариантов
-            if selectionOptions.count(message.text) == 0:
-                bot.send_message(
-                    message.chat.id, 'Такого варианта нету. Пожалуйста, выбирите из предложанных варинтов')
-                waysToHelp(message)
-            else:
-                if message.text == 'Другое':  # если ползьователь выбрал вариант 'Другое', то вызовется функция other
-                    mesg = bot.send_message(
-                        message.chat.id, 'Опишите пожалуйста, как именно вы можете помочь', reply_markup=backButtonMarkup)
+            if message.text == 'Другое':
+                mesg = bot.send_message(
+                    message.chat.id, 'Опишите пожалуйста, как именно вы можете помочь', reply_markup=backButtonMarkup)
 
-                    def handler(message):
-                        if message.text == 'Назад':
-                            user.wayToHelp = False
-                            message.text = None
-                            waysToHelp(message)
-                        else:
-                            user.wayToHelp = message.text
-                            postToChannel(message)
-                    bot.register_next_step_handler(mesg, handler)
-                else:
-                    user.wayToHelp = message.text
-                    postToChannel(message)
+                def handler(message):
+                    if message.text == 'Назад':
+                        user.wayToHelp = False
+                        message.text = None
+                        waysToHelp(message)
+                    else:
+                        user.wayToHelp = message.text
+                        postToChannel(message)
+                bot.register_next_step_handler(mesg, handler)
+
+            else:
+                user.wayToHelp = message.text
+                postToChannel(message)
 
     bot.register_next_step_handler(mesg, handler)
 
@@ -253,17 +244,18 @@ def waysToHelp(message):
 def postToChannel(message):
     Markup = types.ReplyKeyboardMarkup(row_width=True)
     Markup.add(types.KeyboardButton('Начать сначала'))
+
     if user.doHelp == True:
         mes = f"""
 *Могу помочь*
 🌍 Регион: \#{user.region}
-🎯 Я могу помочь: {user.wayToHelp}
-📞 Предложил помощь: @{str(message.from_user.username)}
+🎯 Я могу: {user.wayToHelp}
+📞 Опубликовал: @{str(message.from_user.username)}
 
 Опубикованно через: @pomyani\_menya\_bot
 """
 
-        bot.send_message(channel_id, mes)
+        bot.send_message(channel_id, mes, parse_mode="MarkdownV2")
         bot.send_message(
             message.chat.id, '✅ Ваше сообщение опубликовано чате @pomyani_menya. Вы можете поискать людей, которым требуется помощь', reply_markup=Markup)
 
@@ -296,7 +288,7 @@ def postToChannel(message):
                 start(message)
         bot.register_next_step_handler(mesg, handler)
 
-    user.update()  # обнавляются все поля класса user до значений по умолчанию
+    user.update()
 
 
 if __name__ == '__main__':
