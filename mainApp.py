@@ -1,10 +1,11 @@
 import telebot
+import os
 
 
 from class_library import User
 from telebot import types
-token = ''
-channel_id = '-1001320202352'
+token = os.environ['TOKEN']
+channel_id = os.environ['CHANNEL_ID']
 bot = telebot.TeleBot(token)
 
 
@@ -286,21 +287,21 @@ def CheckNeedToBack_WaysToHelp(message):
 # функция публикации сообщения в общий чат
 def addToTheChat(message):
     if user.doHelp == True:
-        mes = "Могу помочь\n" + 'Регион: ' + user.region + '\n' + 'Я могу помочь: ' + user.wayToHelp + '\n' + \
+        mes = "Могу помочь\n" + 'Регион: #' + user.region + '\n' + 'Я могу помочь: ' + user.wayToHelp + '\n' + \
             'Предложил помощь: ' + \
             str(message.from_user.first_name) + '\n' + \
-            '\n' + 'Опубикованно через: @BabkaTestBot'
+            '\n' + 'Опубикованно через: @pomyani_menya_bot'
         bot.send_message(channel_id, mes)
-        bot.send_message(message.chat.id, ' Ваше сообщение опубликовано чате https://t.me/test_chanal_1. Вы можете поискать людей, которым требуется помощь',
+        bot.send_message(message.chat.id, ' Ваше сообщение опубликовано чате https://t.me/pomyani_menya. Вы можете поискать людей, которым требуется помощь',
                          disable_web_page_preview=True, parse_mode="Markdown")
 
     if user.needHelp == True:
-        mes = 'Нужна помощь\n' + 'Регион: ' + user.region + '\n' + '#Как добраться: ' + user.roadToThePlace + '\n' + 'Имя умершого: ' + user.nameOfTheDeceased + '\n' + \
+        mes = 'Нужна помощь\n' + 'Регион: #' + user.region + '\n' + 'Как добраться: ' + user.roadToThePlace + '\n' + 'Имя умершого: ' + user.nameOfTheDeceased + '\n' + \
             'Дата рождения: ' + user.birthDay + '\n' + '\n' + 'Опубликовал: ' + \
             str(message.from_user.first_name) + '\n' + \
-            '\n' + 'Опубикованно через: @BabkaTestBot'
+            '\n' + 'Опубикованно через: @pomyani_menya_bot'
         bot.send_photo(channel_id, user.photoGrave, mes)
-        bot.send_message(message.chat.id, ' Ваше сообщение опубликовано чате https://t.me/test_chanal_1. Вы можете поискать людей, которым требуется помощь',
+        bot.send_message(message.chat.id, ' Ваше сообщение опубликовано чате https://t.me/pomyani_menya. Вы можете поискать людей, которым требуется помощь',
                          disable_web_page_preview=True, parse_mode="Markdown")
     user.update()  # обнавляются все поля класса user до значений по умолчанию
 
