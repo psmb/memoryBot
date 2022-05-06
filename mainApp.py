@@ -22,40 +22,27 @@ def CreateBackButton():  # фунция, которя создает кнопк�
     return Markup
 
 
-def CreateButton_WaysToHelp():  # функция, которая создает клавиотуру с выбором вариантов помощи. Вызывается в WaysToHelp
-    Markup = types.ReplyKeyboardMarkup(row_width=True)
-    Btn_1 = types.KeyboardButton('Принести цветы')
-    Btn_2 = types.KeyboardButton('Убраться')
-    Btn_3 = types.KeyboardButton('Помолиться')
-    Btn_4 = types.KeyboardButton('Подключить по видеосвязи')
-    Btn_5 = types.KeyboardButton('Другое')
-    BackBtn = types.KeyboardButton('Назад')
-    Markup.add(Btn_1, Btn_2, Btn_3, Btn_4, Btn_5, BackBtn)
+def CreateBackAndSkipButton():
+    Markup = types.ReplyKeyboardMarkup(row_width=2)
+    Back = types.KeyboardButton('Назад')
+    Skip = types.KeyboardButton('Пропустить')
+    Markup.add(Back, Skip)
     return Markup
 
 
-def CreateChooseMarkup():  # функция, которая создает клавиотуру с выбором нужды. Вызывается в handle_start
+@bot.message_handler(commands=['start'])
+def handle_start(message):
     Markup = types.ReplyKeyboardMarkup(row_width=2)
     Btn_1 = types.KeyboardButton('Помочь')
     Btn_2 = types.KeyboardButton('Попросить помощи')
     Markup.add(Btn_1, Btn_2)
-    return Markup
-
-
-# стартовая функция. Тут пользователь указывает, что ему нужно. Дальше идет разветление  взависимости от того, что он выбрал: 'Поросить помощи' или же 'Помочь'
-@bot.message_handler(commands=['start'])
-def handle_start(message):
-    Markup = CreateChooseMarkup()  # -функция, которая создает клавиотуру с выбором нужды
     bot.send_message(
         message.chat.id, "Вы готовы помочь с уходом за могилой или хотите попросить о помощи?", reply_markup=Markup)
-    print('/start')
-    print(user.__dict__)
 
 
 # Обработчик выбора, который был сделан в handle_start. Функция принимает либо текстовые сообщеие либо фото
 @bot.message_handler(content_types=['text', 'photo'])
 def main(message):
-    print(message.text)
     # Если пользователь выбрал 'Попросить помощи, то поле needHelp объекта user становиться True.
     if message.text == 'Попросить помощи':
         user.needHelp = True
@@ -69,176 +56,130 @@ def main(message):
 # =================== FUNCTIONS FOR NEED HELP==================================
 
 # 2)-----------------------
-# Функция с выбором региона
 def chooseRegionForNeedHelp(message):
-    Markup = CreateBackButton()  # фунция, которя создает кнопку "Назад"
-    print(user.__dict__)
     mesg = bot.send_message(
-        message.chat.id, 'В каком регионе находится место памяти?', reply_markup=Markup)
-    bot.register_next_step_handler(mesg, CheckToNeedBack_handle_start)
+        message.chat.id, 'В каком регионе находится место памяти?', reply_markup=CreateBackButton())
 
-
-# Функция проверяет, нужно ли пользователю вернуться на шаг назад (выбор нужды). Если текст сообщение  message.text - 'Назад', то 1 - поле needHelp объекта user заменяется на False
-# 2 - текст сообщениея становиться None. 3 - вызывается функция handle_start, которая предоставляет возможность выбрать нужду. Если текст сообщения != 'Назад',
-# то вызывается следующая функция - roadToRegion
-def CheckToNeedBack_handle_start(message):
-    if message.text == 'Назад':
-        user.needHelp = False  # поле needHelp объекта user заменяется на False
-        message.text = None  # текст сообщениея становиться None
-        # функция handle_start, которая предоставляет возможность выбрать нужду
-        handle_start(message)
-    else:
-        roadToRegion(message)  # вызывается следующая функция - roadToRegion
+    def handler(message):
+        if message.text == 'Назад':
+            user.needHelp = False  # поле needHelp объекта user заменяется на False
+            message.text = None  # текст сообщениея становиться None
+            handle_start(message)
+        else:
+            if message.text != None:  # проверка на значение None
+                user.region = message.text
+            roadToRegion(message)
+    bot.register_next_step_handler(mesg, handler)
 
 
 # 3)--------------------
-# Функция с указанием региона
 def roadToRegion(message):
-    print(message.text)
-    # поскольку в эту функцию могу вернутья из следующей - nameOfTheDeceased, то текст сообщения message.text может быть равен None и, что бы нее допустить записи в
-    # поле класса region объекта user значения None, идет проверка и только в случаее, если текст сообщения message.text != None, то допускается запись введенного ползьзователем сообщения
-    if message.text != None:  # проверка на значение None
-        # добавление введенного пользователем текста (регион) в поле region класса  user
-        user.region = message.text
     mesg = bot.send_message(
-        message.chat.id, 'Опишите как добраться до места памяти')
-    print(user.__dict__)
-    bot.register_next_step_handler(
-        mesg, CheckToNeedBack_ChooseRegionForNeedHelp)
+        message.chat.id, 'Опишите как добраться до места памяти', reply_markup=CreateBackButton())
+
+    def handler(message):
+        if message.text == 'Назад':
+            user.region = None
+            message.text = None
+            chooseRegionForNeedHelp(message)
+        else:
+            if message.text != None:
+                user.roadToThePlace = message.text
+            nameOfTheDeceased(message)
+    bot.register_next_step_handler(mesg, handler)
 
 # Проверка, нужно ли пользователю вернуться на шаг назад. Логика используется та же, что и в CheckToNeedBack_handle_start
-
-
-def CheckToNeedBack_ChooseRegionForNeedHelp(message):
-    if message.text == 'Назад':
-        user.region = None
-        message.text = None
-        chooseRegionForNeedHelp(message)  # вызов предыдущий функции
-    else:
-        nameOfTheDeceased(message)  # вызов следующий функции
 
 
 # 4)------------------------------
 # функция с выбором именнем умершгого
 def nameOfTheDeceased(message):
-    if message.text != None:  # логика та же, что и в roadToRegion
-        # добавление введенного пользователем текста (дорога до места памяти) в поле roadToThePlace класса  user
-        user.roadToThePlace = message.text
-    mesg = bot.send_message(message.chat.id, 'Имя кого вы хотите помянуть')
-    print(user.__dict__)
-    bot.register_next_step_handler(mesg, CheckNeedToBack_RoadToRegion)
+    mesg = bot.send_message(
+        message.chat.id, 'Имя кого вы хотите помянуть', reply_markup=CreateBackButton())
 
-
-# Проверка, нужно ли пользователю вернуться на шаг назад. Логика используется та же, что и в CheckToNeedBack_handle_start
-def CheckNeedToBack_RoadToRegion(message):
-    if message.text == 'Назад':
-        user.roadToThePlace = None
-        message.text = None
-        roadToRegion(message)  # вызов предыдущий функции
-    else:
-        birthDay(message)  # вызов следующий функции
+    def handler(message):
+        if message.text == 'Назад':
+            user.roadToThePlace = None
+            message.text = None
+            roadToRegion(message)
+        else:
+            if message.text != None:
+                user.nameOfTheDeceased = message.text
+            birthDay(message)
+    bot.register_next_step_handler(mesg, handler)
 
 
 # 5)------------------------
 # функция с указанием даты рождения умершгого
 def birthDay(message):
-    if message.text != None:  # логика та же, что и в roadToRegion
-        # добавление введенного пользователем текста (имени умершгого) в поле  nameOfTheDeceased класса user
-        user.nameOfTheDeceased = message.text
     mesg = bot.send_message(
-        message.chat.id, 'Дата рождения того, кого вы хотите помянуть')
-    print(user.__dict__)
-    bot.register_next_step_handler(mesg, CheckNeedToBack_NameOfTheDeceased)
+        message.chat.id, 'Дата рождения того, кого вы хотите помянуть', reply_markup=CreateBackAndSkipButton())
+
+    def handler(message):
+        if message.text == 'Назад':
+            user.nameOfTheDeceased = None
+            message.text = None
+            nameOfTheDeceased(message)
+        else:
+            if message.text != None:
+                user.birthDay = message.text
+            gravePhoto(message)
+    bot.register_next_step_handler(mesg, handler)
 
 # Проверка, нужно ли пользователю вернуться на шаг назад. Логика используется та же, что и в CheckToNeedBack_handle_start
-
-
-def CheckNeedToBack_NameOfTheDeceased(message):
-    if message.text == 'Назад':
-        user.nameOfTheDeceased = None
-        message.text = None
-        nameOfTheDeceased(message)  # вызов предыдущий функции
-    else:
-        gravePhoto(message)  # вызов следующий функции
 
 
 # 6)------------------
 # функция добавления фотографии могилы.Логика используется та же, что и
 def gravePhoto(message):
-    print(message.text)
-    if message.text != None:  # логика та же, что и в roadToRegion
-        # добавление введенного пользователем текста (даты рождения умершого) в поле birthDay  класса user
-        user.birthDay = message.text
-    mesg = bot.send_message(message.chat.id, 'Фото могилы')
-    print(user.__dict__)
-    bot.register_next_step_handler(mesg, CheckNeedToBack_BirthDay)
+    mesg = bot.send_message(
+        message.chat.id, 'Фото могилы', reply_markup=CreateBackAndSkipButton())
 
-# Проверка, нужно ли пользователю вернуться на шаг назад. Логика используется та же, что и в CheckToNeedBack_handle_start
-
-
-def CheckNeedToBack_BirthDay(message):
-    if message.text == 'Назад':
-        user.birthDay = None
-        message.text = None
-        birthDay(message)  # вызов предыдущий функции
-    else:
-        addGravePhoto(message)  # вызов следующий функции
-
-# функция, которая 1. добавляет в поле photoGrave класса User фото могилы. 2. вызывает функцию публикации сообщения
-
-
-def addGravePhoto(message):
-    user.photoGrave = message.photo[-1].file_id
-    whatNeedsToBeDone(message)
+    def handler(message):
+        if message.text == 'Назад':
+            user.birthDay = None
+            message.text = None
+            birthDay(message)
+        else:
+            if message.photo != None:
+                user.photoGrave = message.photo[-1].file_id
+            whatNeedsToBeDone(message)
+    bot.register_next_step_handler(mesg, handler)
 
 
 # 7)------------------
-# Что нужно сделать
 def whatNeedsToBeDone(message):
-    if message.text != None:
-        user.whatNeedsToBeDone = message.text
     mesg = bot.send_message(
-        message.chat.id, 'Что нужно сделать?')
-    print(user.__dict__)
-    bot.register_next_step_handler(mesg, CheckNeedToBack_whatNeedsToBeDone)
+        message.chat.id, 'Что нужно сделать?', reply_markup=CreateBackButton())
 
-
-def CheckNeedToBack_whatNeedsToBeDone(message):
-    if message.text == 'Назад':
-        user.whatNeedsToBeDone = None
-        message.text = None
-        whatNeedsToBeDone(message)  # вызов предыдущий функции
-    else:
-        coverExpenses(message)
+    def handler(message):
+        if message.text == 'Назад':
+            user.whatNeedsToBeDone = None
+            message.text = None
+            whatNeedsToBeDone(message)
+        else:
+            coverExpenses(message)
+    bot.register_next_step_handler(mesg, handler)
 
 
 # 8)------------------
-# Что нужно сделать
-def CreateChooseCoverExpensesMarkup():
-    Markup = types.ReplyKeyboardMarkup(row_width=2)
-    Yes = types.KeyboardButton('Да')
-    No = types.KeyboardButton('Нет')
-    Markup.add(Yes, No)
-    return Markup
-
-
 def coverExpenses(message):
-    Markup = CreateChooseCoverExpensesMarkup()
     if message.text != None:
         user.coverExpenses = message.text
+
+    Markup = types.ReplyKeyboardMarkup(row_width=2)
+    Markup.add(types.KeyboardButton('Да'), types.KeyboardButton('Нет'))
     mesg = bot.send_message(
         message.chat.id, 'Готовы ли вы оплатить расходы?', reply_markup=Markup)
-    print(user.__dict__)
-    bot.register_next_step_handler(mesg, CheckNeedToBack_coverExpenses)
 
-
-def CheckNeedToBack_coverExpenses(message):
-    if message.text == 'Назад':
-        user.coverExpenses = None
-        message.text = None
-        coverExpenses(message)  # вызов предыдущий функции
-    else:
-        addToTheChat(message)
+    def handler(message):
+        if message.text == 'Назад':
+            user.coverExpenses = None
+            message.text = None
+            coverExpenses(message)
+        else:
+            postToChannel(message)
+    bot.register_next_step_handler(mesg, handler)
 
 
 # ===================================================================
@@ -246,98 +187,82 @@ def CheckNeedToBack_coverExpenses(message):
 # =================== FUNCTIONS FOR DO HELP==================================
 
 # 1)-----------
-# функция выбора региона
 def chooseRegionForDoHelp(message):
-    Markup = CreateBackButton()  # функцию, которая создает кнопу 'Назад'
-    if message.text != None:  # логика та же, что и в roadToRegion
+    if message.text != None:
         user.doHelp = True
     mesg = bot.send_message(
-        message.chat.id, 'В какой области вы можете помогать?', reply_markup=Markup)
-    # print(user.__dict__)
-    bot.register_next_step_handler(mesg, CheckNeedToBack_HandleStart)
+        message.chat.id, 'В какой области вы можете помогать?', reply_markup=CreateBackButton())
 
-
-# Проверка, нужно ли пользователю вернуться на шаг назад. Логика используется та же, что и в CheckToNeedBack_handle_start
-def CheckNeedToBack_HandleStart(message):
-    if message.text == 'Назад':
-        user.doHelp = False
-        message.text = None
-        handle_start(message)  # вызов предыдущий функции
-    else:
-        waysToHelp(message)  # вызов следующий функции
+    def handler(message):
+        if message.text == 'Назад':
+            user.doHelp = False
+            message.text = None
+            handle_start(message)
+        else:
+            if message.text != None:
+                user.region = message.text
+            waysToHelp(message)
+    bot.register_next_step_handler(mesg, handler)
 
 
 # 2)-------------------------
-# функцию предостовляет варианты помощи
 def waysToHelp(message):
     print(message.text)
-    if message.text != None:  # логика та же, что и в roadToRegion
-        # добавление текста сообщений (регион) в поле region класса user
-        user.region = message.text
-    # функция создает клавиатуру с вариантами помощи
-    Markup = CreateButton_WaysToHelp()
+
+    Markup = types.ReplyKeyboardMarkup(row_width=True)
+    Markup.add(types.KeyboardButton('Принести цветы'),
+               types.KeyboardButton('Убраться'),
+               types.KeyboardButton('Помолиться'),
+               types.KeyboardButton('Подключить по видеосвязи'),
+               types.KeyboardButton('Другое'),
+               types.KeyboardButton('Назад'))
     mesg = bot.send_message(
         message.chat.id, 'Как вы можете помочь?', reply_markup=Markup)
-    print(user.__dict__)
-    bot.register_next_step_handler(mesg, CheckNeedToBack_ChooseRegionForDoHelp)
 
+    def handler(message):
+        if message.text == 'Назад':
+            user.wayToHelp = False
+            message.text = None
+            chooseRegionForDoHelp(message)
+        else:
+            selectionOptions = ['Найти могилу', 'Принести цветы', 'Убраться', 'Помолиться',
+                                'Подключить по видеосвязи', 'Другое']
+            # если пользователь указал вариант, которого нету, то его перенаправит обратно к выбору вариантов
+            if selectionOptions.count(message.text) == 0:
+                bot.send_message(
+                    message.chat.id, 'Такого варианта нету. Пожалуйста, выбирите из предложанных варинтов')
+                waysToHelp(message)
+            else:
+                if message.text == 'Другое':  # если ползьователь выбрал вариант 'Другое', то вызовется функция other
+                    mesg = bot.send_message(
+                        message.chat.id, 'Опишите пожалуйста, как именно вы можете помочь', reply_markup=CreateBackButton())
 
-# Проверка, нужно ли пользователю вернуться на шаг назад. Логика используется та же, что и в CheckToNeedBack_handle_start
-def CheckNeedToBack_ChooseRegionForDoHelp(message):
-    if message.text == 'Назад':
-        user.wayToHelp = False
-        message.text = None
-        chooseRegionForDoHelp(message)  # вызов предыдущий функции
-    else:
-        handlerChoose(message)  # вызов следующий функции
+                    def handler(message):
+                        if message.text == 'Назад':
+                            user.wayToHelp = False
+                            message.text = None
+                            waysToHelp(message)
+                        else:
+                            user.wayToHelp = message.text
+                            postToChannel(message)
+                    bot.register_next_step_handler(mesg, handler)
+                else:
+                    user.wayToHelp = message.text
+                    postToChannel(message)
+
+    bot.register_next_step_handler(mesg, handler)
+
 
 # 3)--------------------------------------
 # обработчик выбора варианта помщи
 
 
-def handlerChoose(message):
-    print(message.text)
-    selectionOptions = ['Найти могилу', 'Принести цветы', 'Убраться', 'Помолиться',
-                        'Подключить по видеосвязи', 'Другое']
-    # если пользователь указал вариант, которого нету, то его перенаправит обратно к выбору вариантов
-    if selectionOptions.count(message.text) == 0:
-        bot.send_message(
-            message.chat.id, 'Такого варианта нету. Пожалуйста, выбирите из предложанных варинтов')
-        waysToHelp(message)
-    else:
-        if message.text == 'Другое':  # если ползьователь выбрал вариант 'Другое', то вызовется функция other
-            other(message)
-        else:
-            # добавление текста сообщений (выбранный вариант помощи) wayToHelp в поле  класса user
-            user.wayToHelp = message.text
-            addToTheChat(message)  # вызов функции, которая публикует сообщение
-
-
-# добавляет другой вариант помощи, который укажет пользователь в свободном поле ввода
-def other(message):
-    Markup = CreateBackButton()  # создание кнопки "Назад'
-    mesg = bot.send_message(
-        message.chat.id, 'Опишите пожалуйста, как именно вы можете помочь', reply_markup=Markup)
-    # добавление текста сообщений (указанный ползтователем в свободном поле вариант помощи) wayToHelp в поле  класса user
-    user.wayToHelp = message.text
-    print(user.__dict__)
-    bot.register_next_step_handler(mesg, CheckNeedToBack_WaysToHelp)
-
 # Проверка, нужно ли пользователю вернуться на шаг назад. Логика используется та же, что и в CheckToNeedBack_handle_start
-
-
-def CheckNeedToBack_WaysToHelp(message):
-    if message.text == 'Назад':
-        user.wayToHelp = False
-        message.text = None
-        waysToHelp(message)  # вызов предыдущий функции
-    else:
-        addToTheChat(message)  # вызов следующий функции
 
 
 # ===========================================================================================
 # функция публикации сообщения в общий чат
-def addToTheChat(message):
+def postToChannel(message):
     Markup = types.ReplyKeyboardMarkup(row_width=True)
     Restart = types.KeyboardButton('Начать сначала')
     Markup.add(Restart)
@@ -356,36 +281,21 @@ def addToTheChat(message):
             'Дата рождения: ' + user.birthDay + '\n' + '\n' + \
             'Опубликовал: ' + str(message.from_user.first_name) + '\n' + \
             '\n' + 'Опубикованно через: @pomyani_menya_bot'
-        bot.send_photo(channel_id, user.photoGrave, mes)
-        bot.send_message(
-            message.chat.id, 'Ваша просьба была опубликована в канале @pomyani_menya. Вы можете сами поискать людей, которые готовы помогать в вашем регионе', Markup)
+        if user.photoGrave:
+            bot.send_photo(channel_id, user.photoGrave, mes)
+        else:
+            bot.send_message(channel_id, mes)
+        mesg = bot.send_message(
+            message.chat.id, 'Ваша просьба была опубликована в канале @pomyani_menya. Вы можете сами поискать людей, которые готовы помогать в вашем регионе', reply_markup=Markup)
+
+        def handler(message):
+            if message.text == 'Начать сначала':
+                user.update()
+                handle_start(message)
+        bot.register_next_step_handler(mesg, handler)
 
     user.update()  # обнавляются все поля класса user до значений по умолчанию
 
 
-# @bot.message_handler(commands=['start'])
-# def handle_start(message):
-#     InlineMarkup = types.InlineKeyboardMarkup(row_width=True)
-#     InlineBtn1 = types.InlineKeyboardButton('Помочь', callback_data='Do Help')
-#     InlineBtn2 = types.InlineKeyboardButton('Поросить помощи', callback_data='Need Help')
-#     InlineMarkup.add(InlineBtn1, InlineBtn2)
-#     bot.send_message(message.chat.id, "Вы готовы помочь с уходом за могилой или хотите попросить о помощи?", reply_markup=InlineMarkup)
-#     InlineBtn1 = types.ReplyKeyboardRemove()
-#     InlineBtn2 = types.Rem
-#     print(message.text)
-#
-#
-# @bot.callback_query_handler(func=lambda call: True)
-# def callback_handler(call):
-#     bot.answer_callback_query(call.id)
-#     if call.data == 'Do Help':
-#         chooseRegionForDoHelp(call.message)
-#     if call.data == 'Need Help':
-#         chooseRegionForDoHelp(call.message)
-#
-#
-#
-# @bot.message_handler(content_types=['text', 'photo'])
-# def main(callback):
 if __name__ == '__main__':
     bot.polling()
