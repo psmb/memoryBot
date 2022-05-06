@@ -1,13 +1,13 @@
 from telebot import types
 import os
 import telebot
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from User import User
 from backButtonMarkup import backButtonMarkup
 from backAndSkipButtonMarkup import backAndSkipButtonMarkup
 
 
-load_dotenv()
+# load_dotenv()
 
 
 token = os.environ['TOKEN']
