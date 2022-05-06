@@ -74,7 +74,7 @@ def chooseRegionForNeedHelp(message):
     Markup = CreateBackButton()  # фунция, которя создает кнопку "Назад"
     print(user.__dict__)
     mesg = bot.send_message(
-        message.chat.id, 'Выбор области', reply_markup=Markup)
+        message.chat.id, 'В каком регионе находится место памяти?', reply_markup=Markup)
     bot.register_next_step_handler(mesg, CheckToNeedBack_handle_start)
 
 
@@ -203,7 +203,7 @@ def chooseRegionForDoHelp(message):
     if message.text != None:  # логика та же, что и в roadToRegion
         user.doHelp = True
     mesg = bot.send_message(
-        message.chat.id, 'Выбор области', reply_markup=Markup)
+        message.chat.id, 'В какой области вы можете помогать?', reply_markup=Markup)
     # print(user.__dict__)
     bot.register_next_step_handler(mesg, CheckNeedToBack_HandleStart)
 
