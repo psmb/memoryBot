@@ -189,7 +189,56 @@ def CheckNeedToBack_BirthDay(message):
 
 def addGravePhoto(message):
     user.photoGrave = message.photo[-1].file_id
-    addToTheChat(message)
+    whatNeedsToBeDone(message)
+
+
+# 7)------------------
+# Что нужно сделать
+def whatNeedsToBeDone(message):
+    if message.text != None:
+        user.whatNeedsToBeDone = message.text
+    mesg = bot.send_message(
+        message.chat.id, 'Что нужно сделать?')
+    print(user.__dict__)
+    bot.register_next_step_handler(mesg, CheckNeedToBack_whatNeedsToBeDone)
+
+
+def CheckNeedToBack_whatNeedsToBeDone(message):
+    if message.text == 'Назад':
+        user.whatNeedsToBeDone = None
+        message.text = None
+        whatNeedsToBeDone(message)  # вызов предыдущий функции
+    else:
+        coverExpenses(message)
+
+
+# 8)------------------
+# Что нужно сделать
+def CreateChooseCoverExpensesMarkup():
+    Markup = types.ReplyKeyboardMarkup(row_width=2)
+    Yes = types.KeyboardButton('Да')
+    No = types.KeyboardButton('Нет')
+    Markup.add(Yes, No)
+    return Markup
+
+
+def coverExpenses(message):
+    Markup = CreateChooseCoverExpensesMarkup()
+    if message.text != None:
+        user.coverExpenses = message.text
+    mesg = bot.send_message(
+        message.chat.id, 'Готовы ли вы оплатить расходы?', reply_markup=Markup)
+    print(user.__dict__)
+    bot.register_next_step_handler(mesg, CheckNeedToBack_coverExpenses)
+
+
+def CheckNeedToBack_coverExpenses(message):
+    if message.text == 'Назад':
+        user.coverExpenses = None
+        message.text = None
+        coverExpenses(message)  # вызов предыдущий функции
+    else:
+        addToTheChat(message)
 
 
 # ===================================================================
@@ -289,6 +338,9 @@ def CheckNeedToBack_WaysToHelp(message):
 # ===========================================================================================
 # функция публикации сообщения в общий чат
 def addToTheChat(message):
+    Markup = types.ReplyKeyboardMarkup(row_width=True)
+    Restart = types.KeyboardButton('Начать сначала')
+    Markup.add(Restart)
     if user.doHelp == True:
         mes = "Могу помочь\n" + 'Регион: #' + user.region + '\n' + 'Я могу помочь: ' + user.wayToHelp + '\n' + \
             'Предложил помощь: ' + \
@@ -296,16 +348,17 @@ def addToTheChat(message):
             '\n' + 'Опубикованно через: @pomyani_menya_bot'
         bot.send_message(channel_id, mes)
         bot.send_message(
-            message.chat.id, 'Ваше сообщение опубликовано чате @pomyani_menya. Вы можете поискать людей, которым требуется помощь')
+            message.chat.id, 'Ваше сообщение опубликовано чате @pomyani_menya. Вы можете поискать людей, которым требуется помощь', reply_markup=Markup)
 
     if user.needHelp == True:
         mes = 'Нужна помощь\n' + 'Регион: #' + user.region + '\n' + 'Как добраться: ' + user.roadToThePlace + '\n' + 'Имя умершого: ' + user.nameOfTheDeceased + '\n' + \
-            'Дата рождения: ' + user.birthDay + '\n' + '\n' + 'Опубликовал: ' + \
-            str(message.from_user.first_name) + '\n' + \
+            ('Что нужно сделать: ' + user.whatNeedsToBeDone + '\n' + '\n') if user.whatNeedsToBeDone else "" + \
+            'Дата рождения: ' + user.birthDay + '\n' + '\n' + \
+            'Опубликовал: ' + str(message.from_user.first_name) + '\n' + \
             '\n' + 'Опубикованно через: @pomyani_menya_bot'
         bot.send_photo(channel_id, user.photoGrave, mes)
         bot.send_message(
-            message.chat.id, 'Ваше сообщение опубликовано чате @pomyani_menya. Вы можете поискать людей, которым требуется помощь')
+            message.chat.id, 'Ваша просьба была опубликована в канале @pomyani_menya. Вы можете сами поискать людей, которые готовы помогать в вашем регионе', Markup)
 
     user.update()  # обнавляются все поля класса user до значений по умолчанию
 

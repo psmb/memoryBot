@@ -8,6 +8,8 @@ class User:
         self.doHelp = False  # если ты можешь помочь
         self.needHelp = False  # Если тебе нужна помощь
         self.wayToHelp = None  # способ помочь
+        self.whatNeedsToBeDone = None  # способ помочь
+        self.coverExpenses = False  # способ помочь
 
     # метод класса, который обновляет все поля до значений по умолчанию
     def update(self):
