@@ -21,9 +21,8 @@ user = User()  # экземпляр класса User, который храни
 @bot.message_handler(commands=['start'])
 def start(message):
     Markup = types.ReplyKeyboardMarkup(row_width=2)
-    Btn_1 = types.KeyboardButton('Помочь')
-    Btn_2 = types.KeyboardButton('Попросить помощи')
-    Markup.add(Btn_1, Btn_2)
+    Markup.add(types.KeyboardButton('Помочь'),
+               types.KeyboardButton('Попросить помощи'))
     bot.send_message(
         message.chat.id, "Вы готовы помочь с уходом за могилой или хотите попросить о помощи?", reply_markup=Markup)
 
@@ -257,7 +256,7 @@ def postToChannel(message):
 
         bot.send_message(channel_id, mes, parse_mode="MarkdownV2")
         bot.send_message(
-            message.chat.id, '✅ Ваше сообщение опубликовано чате @pomyani_menya. Вы можете поискать людей, которым требуется помощь', reply_markup=Markup)
+            message.chat.id, '✅ Ваше сообщение опубликовано в канале @pomyani_menya. Вы можете поискать людей, которым требуется помощь', reply_markup=Markup)
 
     if user.needHelp == True:
         mes = f"""
