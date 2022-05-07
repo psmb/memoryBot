@@ -11,6 +11,9 @@ class User:
         self.photoGrave = None
         self.doHelp = False
         self.needHelp = False
+        self.thank = False
+        self.thankMessage = False
+        self.thankPhoto = False
         self.wayToHelp = None
         self.whatNeedsToBeDone = None
         self.coverExpenses = False

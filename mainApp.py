@@ -22,7 +22,8 @@ user = User()  # экземпляр класса User, который храни
 def start(message):
     Markup = types.ReplyKeyboardMarkup(row_width=2)
     Markup.add(types.KeyboardButton('Помочь'),
-               types.KeyboardButton('Попросить помощи'))
+               types.KeyboardButton('Попросить помощи'),
+               types.KeyboardButton('Поблагодарить'))
     bot.send_message(
         message.chat.id, "Вы готовы помочь с уходом за могилой или хотите попросить о помощи?", reply_markup=Markup)
 
@@ -30,14 +31,17 @@ def start(message):
 # Обработчик выбора, который был сделан в start. Функция принимает либо текстовые сообщеие либо фото
 @bot.message_handler(content_types=['text', 'photo'])
 def main(message):
-    # Если пользователь выбрал 'Попросить помощи, то поле needHelp объекта user становиться True.
     if message.text == 'Попросить помощи':
         user.needHelp = True
-        chooseRegionForNeedHelp(message)  # Вызывется функция с выбором региона
+        chooseRegionForNeedHelp(message)
 
-    if message.text == 'Помочь':  # Если пользователь выбрал 'Помочь', то поле doHelp объекта user становиться True
+    if message.text == 'Помочь':
         user.doHelp = True
-        chooseRegionForDoHelp(message)  # Вызывется функция с выбором региона
+        chooseRegionForDoHelp(message)
+
+    if message.text == 'Поблагодарить':
+        user.thank = True
+        thank(message)
 
 
 # =================== FUNCTIONS FOR NEED HELP==================================
@@ -49,11 +53,11 @@ def chooseRegionForNeedHelp(message):
 
     def handler(message):
         if message.text == 'Назад':
-            user.needHelp = False  # поле needHelp объекта user заменяется на False
-            message.text = None  # текст сообщениея становиться None
+            user.needHelp = False
+            message.text = None
             start(message)
         else:
-            if message.text != None:  # проверка на значение None
+            if message.text != None:
                 user.region = message.text
             roadToRegion(message)
     bot.register_next_step_handler(mesg, handler)
@@ -178,7 +182,7 @@ def chooseRegionForDoHelp(message):
     if message.text != None:
         user.doHelp = True
     mesg = bot.send_message(
-        message.chat.id, 'В какой области вы можете помогать?', reply_markup=backButtonMarkup)
+        message.chat.id, 'В каком регионе вы можете помогать?', reply_markup=backButtonMarkup)
 
     def handler(message):
         if message.text == 'Назад':
@@ -288,6 +292,69 @@ def postToChannel(message):
         bot.register_next_step_handler(mesg, handler)
 
     user.update()
+
+
+# 4)--------------------------------------
+# обработчик выбора варианта благодарности
+
+def thank(message):
+    mesg = bot.send_message(
+        message.chat.id, 'Если через @pomyani_menya_bot вы нашли людей, которые смогли прийти на могилу ваших родственников в другом городе, расскажите об этом и поблагодарите их.', reply_markup=backButtonMarkup)
+
+    def handler(message):
+        if message.text == 'Назад':
+            user.thankMessage = None
+            message.text = None
+            start(message)
+        else:
+            if message.text != None:
+                user.thankMessage = message.text
+            thankPhoto(message)
+    bot.register_next_step_handler(mesg, handler)
+
+
+def thankPhoto(message):
+    mesg = bot.send_message(
+        message.chat.id, 'Добавьте фото', reply_markup=backAndSkipButtonMarkup)
+
+    def handler(message):
+        if message.text == 'Назад':
+            user.thankMessage = None
+            message.text = None
+            thank(message)
+        else:
+            if message.photo != None:
+                user.thankPhoto = message.photo[-1].file_id
+            postThank(message)
+    bot.register_next_step_handler(mesg, handler)
+
+
+def postThank(message):
+    Markup = types.ReplyKeyboardMarkup(row_width=True)
+    Markup.add(types.KeyboardButton('Начать сначала'))
+
+    mes = f"""
+*Благодарность*
+✍🏻 {user.thankMessage}
+📞 Опубликовал: @{str(message.from_user.username)}
+
+Опубикованно через: @pomyani\_menya\_bot
+"""
+
+    if user.thankPhoto:
+        bot.send_photo(channel_id, user.thankPhoto,
+                       mes, parse_mode="MarkdownV2")
+    else:
+        bot.send_message(channel_id, mes, parse_mode="MarkdownV2")
+
+    mesg = bot.send_message(
+        message.chat.id, '✅ Ваша благодарность была опубликована в канале @pomyani_menya', reply_markup=Markup)
+
+    def handler(message):
+        if message.text == 'Начать сначала':
+            user.update()
+            start(message)
+    bot.register_next_step_handler(mesg, handler)
 
 
 if __name__ == '__main__':
