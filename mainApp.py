@@ -4,6 +4,7 @@ import telebot
 # from dotenv import load_dotenv
 from User import User
 from backButtonMarkup import backButtonMarkup
+from chooseRegionForNeedHelp import chooseRegionForNeedHelp
 from regionsMarkup import regionsMarkup
 from backAndSkipButtonMarkup import backAndSkipButtonMarkup
 
@@ -17,6 +18,11 @@ bot = telebot.TeleBot(token)
 
 
 user = User()  # экземпляр класса User, который хранит в себе введенную пользователм информацию
+
+context = {
+    bot,
+    user,
+}
 
 
 @bot.message_handler(commands=['start'])
@@ -34,7 +40,7 @@ def start(message):
 def main(message):
     if message.text == 'Попросить помощи':
         user.needHelp = True
-        chooseRegionForNeedHelp(message)
+        chooseRegionForNeedHelp(context, message)
 
     if message.text == 'Помочь':
         user.doHelp = True
@@ -46,22 +52,6 @@ def main(message):
 
 
 # =================== FUNCTIONS FOR NEED HELP==================================
-
-# 2)-----------------------
-def chooseRegionForNeedHelp(message):
-    mesg = bot.send_message(
-        message.chat.id, 'В каком регионе находится место памяти?', reply_markup=regionsMarkup)
-
-    def handler(message):
-        if message.text == 'Назад':
-            user.needHelp = False
-            message.text = None
-            start(message)
-        else:
-            if message.text != None:
-                user.region = message.text
-            roadToRegion(message)
-    bot.register_next_step_handler(mesg, handler)
 
 
 # 3)--------------------
