@@ -1,7 +1,7 @@
 version: "3.4"
 services:
   web:
-    restart: always
+    restart: on-failure
     image: ghcr.io/psmb/memorybot:main
     hostname: 'memoryBot'
     networks:
