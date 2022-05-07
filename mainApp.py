@@ -214,7 +214,7 @@ def waysToHelp(message):
             message.text = None
             chooseRegionForDoHelp(message)
         else:
-            if message.text == 'Другое':
+            if message.text == '✍🏻 Другое':
                 mesg = bot.send_message(
                     message.chat.id, 'Опишите пожалуйста, как именно вы можете помочь', reply_markup=backButtonMarkup)
 
@@ -300,13 +300,12 @@ def postToChannel(message):
         mesg = bot.send_message(
             message.chat.id, '✅ Ваша просьба была опубликована в канале @pomyani_menya. Вы можете сами поискать людей, которые готовы помогать в вашем регионе', reply_markup=Markup)
 
-        def handler(message):
-            if message.text == 'Начать сначала':
-                user.update()
-                start(message)
-        bot.register_next_step_handler(mesg, handler)
-
     user.update()
+
+    def handler(message):
+        if message.text == 'Начать сначала':
+            start(message)
+    bot.register_next_step_handler(mesg, handler)
 
 
 # 4)--------------------------------------
