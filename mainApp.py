@@ -4,6 +4,7 @@ import telebot
 # from dotenv import load_dotenv
 from User import User
 from backButtonMarkup import backButtonMarkup
+from regionsMarkup import regionsMarkup
 from backAndSkipButtonMarkup import backAndSkipButtonMarkup
 
 
@@ -49,7 +50,7 @@ def main(message):
 # 2)-----------------------
 def chooseRegionForNeedHelp(message):
     mesg = bot.send_message(
-        message.chat.id, 'В каком регионе находится место памяти?', reply_markup=backButtonMarkup)
+        message.chat.id, 'В каком регионе находится место памяти?', reply_markup=regionsMarkup)
 
     def handler(message):
         if message.text == 'Назад':
@@ -182,7 +183,7 @@ def chooseRegionForDoHelp(message):
     if message.text != None:
         user.doHelp = True
     mesg = bot.send_message(
-        message.chat.id, 'В каком регионе вы можете помогать?', reply_markup=backButtonMarkup)
+        message.chat.id, 'В каком регионе вы можете помогать?', reply_markup=regionsMarkup)
 
     def handler(message):
         if message.text == 'Назад':
