@@ -210,7 +210,6 @@ def waysToHelp(message):
 
     def handler(message):
         if message.text == 'Назад':
-            user.wayToHelp = False
             message.text = None
             chooseRegionForDoHelp(message)
         else:
@@ -220,17 +219,32 @@ def waysToHelp(message):
 
                 def handler(message):
                     if message.text == 'Назад':
-                        user.wayToHelp = False
                         message.text = None
                         waysToHelp(message)
                     else:
-                        user.wayToHelp = message.text
-                        postToChannel(message)
+                        user.waysToHelp.add(message.text)
+                        waysToHelpAddMore(message)
                 bot.register_next_step_handler(mesg, handler)
 
             else:
-                user.wayToHelp = message.text
-                postToChannel(message)
+                user.waysToHelp.add(message.text)
+                waysToHelpAddMore(message)
+
+    bot.register_next_step_handler(mesg, handler)
+
+
+def waysToHelpAddMore(message):
+    Markup = types.ReplyKeyboardMarkup(row_width=2)
+    Markup.add(types.KeyboardButton('➕ Добавить ещё'),
+               types.KeyboardButton('⏭️ Опубликовать'))
+    mesg = bot.send_message(
+        message.chat.id, 'Добавить еще вариант помощи?', reply_markup=Markup)
+
+    def handler(message):
+        if message.text == '➕ Добавить ещё':
+            waysToHelp(message)
+        else:
+            postToChannel(message)
 
     bot.register_next_step_handler(mesg, handler)
 
@@ -252,7 +266,7 @@ def postToChannel(message):
         mes = f"""
 *Могу помочь*
 🌍 Регион: \#{user.region}
-🎯 Я могу: {user.wayToHelp}
+🎯 Я могу: {", ".join(user.waysToHelp)}
 📞 Опубликовал: @{str(message.from_user.username)}
 
 Опубикованно через: @pomyani\_menya\_bot

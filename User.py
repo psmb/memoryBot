@@ -14,6 +14,6 @@ class User:
         self.thank = False
         self.thankMessage = False
         self.thankPhoto = False
-        self.wayToHelp = None
+        self.waysToHelp = set()
         self.whatNeedsToBeDone = None
         self.coverExpenses = False
