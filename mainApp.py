@@ -26,7 +26,7 @@ def start(message):
                types.KeyboardButton('Попросить помощи'),
                types.KeyboardButton('Поблагодарить'))
     bot.send_message(
-        message.chat.id, "Вы готовы помочь с уходом за могилой или хотите попросить о помощи?", reply_markup=Markup)
+        message.chat.id, "Вы готовы помочь, хотите попросить о помощи или хотите поблагодарить тех, кто вам помог?", reply_markup=Markup)
 
 
 # Обработчик выбора, который был сделан в start. Функция принимает либо текстовые сообщеие либо фото
