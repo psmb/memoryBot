@@ -285,7 +285,7 @@ def postToChannel(message):
 *Нужна помощь*
 🌍 Регион: \#{user.region}
 🚕 Как добраться: {user.roadToThePlace}
-👤 Имя умершого: {user.nameOfTheDeceased}
+👤 Имя умершего: {user.nameOfTheDeceased}
 📅 Дата рождения умершего: {user.birthDay}
 🎯 Что нужно сделать: {user.whatNeedsToBeDone}
 {'💰 Я готов покрыть расходы' if user.coverExpenses else ''}
