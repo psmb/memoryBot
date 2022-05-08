@@ -114,7 +114,7 @@ def birthDay(message):
             message.text = None
             nameOfTheDeceased(message)
         else:
-            if message.text != None and message.text != 'Пропустить':
+            if message.text != None and message.text != 'Пропустить ⏭️':
                 user.birthDay = message.text
             gravePhoto(message)
     bot.register_next_step_handler(mesg, handler)
