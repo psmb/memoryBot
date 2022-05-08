@@ -1,3 +1,4 @@
+from queue import Empty
 from telebot import types
 import os
 import telebot
@@ -263,6 +264,8 @@ def postToChannel(message):
     Markup = types.ReplyKeyboardMarkup(row_width=True)
     Markup.add(types.KeyboardButton('Начать сначала'))
 
+    mesg = None
+
     if user.doHelp == True:
         mes = f"""
 *Могу помочь*
@@ -274,10 +277,10 @@ def postToChannel(message):
 """
 
         bot.send_message(channel_id, mes, parse_mode="MarkdownV2")
-        bot.send_message(
+        mesg = bot.send_message(
             message.chat.id, '✅ Ваше сообщение опубликовано в канале @pomyani_menya. Вы можете поискать людей, которым требуется помощь', reply_markup=Markup)
 
-    if user.needHelp == True:
+    elif user.needHelp == True:
         mes = f"""
 *Нужна помощь*
 🌍 Регион: \#{user.region}
@@ -305,7 +308,8 @@ def postToChannel(message):
     def handler(message):
         if message.text == 'Начать сначала':
             start(message)
-    bot.register_next_step_handler(mesg, handler)
+    if mesg:
+        bot.register_next_step_handler(mesg, handler)
 
 
 # 4)--------------------------------------
