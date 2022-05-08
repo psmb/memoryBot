@@ -54,7 +54,7 @@ def chooseRegionForNeedHelp(message):
         message.chat.id, 'В каком регионе находится место памяти?', reply_markup=regionsMarkup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.needHelp = False
             message.text = None
             start(message)
@@ -71,7 +71,7 @@ def roadToRegion(message):
         message.chat.id, 'Опишите как добраться до места памяти', reply_markup=backButtonMarkup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.region = None
             message.text = None
             chooseRegionForNeedHelp(message)
@@ -91,7 +91,7 @@ def nameOfTheDeceased(message):
         message.chat.id, 'Имя кого вы хотите помянуть', reply_markup=backButtonMarkup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.roadToThePlace = None
             message.text = None
             roadToRegion(message)
@@ -109,7 +109,7 @@ def birthDay(message):
         message.chat.id, 'Дата рождения того, кого вы хотите помянуть', reply_markup=backAndSkipButtonMarkup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.nameOfTheDeceased = None
             message.text = None
             nameOfTheDeceased(message)
@@ -129,7 +129,7 @@ def gravePhoto(message):
         message.chat.id, 'Фото могилы', reply_markup=backAndSkipButtonMarkup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.birthDay = None
             message.text = None
             birthDay(message)
@@ -146,7 +146,7 @@ def whatNeedsToBeDone(message):
         message.chat.id, 'Что нужно сделать?', reply_markup=backButtonMarkup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.whatNeedsToBeDone = None
             message.text = None
             whatNeedsToBeDone(message)
@@ -164,7 +164,7 @@ def coverExpenses(message):
         message.chat.id, 'Готовы ли вы оплатить расходы?', reply_markup=Markup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.coverExpenses = None
             message.text = None
             coverExpenses(message)
@@ -187,7 +187,7 @@ def chooseRegionForDoHelp(message):
         message.chat.id, 'В каком регионе вы можете помогать?', reply_markup=regionsMarkup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.doHelp = False
             message.text = None
             start(message)
@@ -211,7 +211,7 @@ def waysToHelp(message):
         message.chat.id, 'Как вы можете помочь?', reply_markup=Markup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             message.text = None
             chooseRegionForDoHelp(message)
         else:
@@ -220,7 +220,7 @@ def waysToHelp(message):
                     message.chat.id, 'Опишите пожалуйста, как именно вы можете помочь', reply_markup=backButtonMarkup)
 
                 def handler(message):
-                    if message.text == 'Назад':
+                    if message.text == '🔙 Назад':
                         message.text = None
                         waysToHelp(message)
                     else:
@@ -320,7 +320,7 @@ def thank(message):
         message.chat.id, 'Если через @pomyani_menya_bot вы нашли людей, которые смогли прийти на могилу ваших родственников в другом городе, расскажите об этом и поблагодарите их.', reply_markup=backButtonMarkup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.thankMessage = None
             message.text = None
             start(message)
@@ -336,7 +336,7 @@ def thankPhoto(message):
         message.chat.id, 'Добавьте фото', reply_markup=backAndSkipButtonMarkup)
 
     def handler(message):
-        if message.text == 'Назад':
+        if message.text == '🔙 Назад':
             user.thankMessage = None
             message.text = None
             thank(message)
